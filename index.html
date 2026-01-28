@@ -1,0 +1,1725 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Escape Room Latina — Villa Valeria</title>
+
+<style>
+:root{
+  --ink:#221a14;
+  --mut:#4b3d33;
+
+  --card:rgba(255,255,255,.82);
+  --br:rgba(66,44,30,.22);
+  --shadow:0 20px 65px rgba(35,18,8,.22);
+  --rad:22px;
+
+  --acc:#8b1a1a;
+  --gold:#caa24a;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  color:var(--ink);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  padding:14px;
+
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255,255,255,.75), rgba(255,255,255,0) 45%),
+    radial-gradient(circle at 85% 20%, rgba(255,255,255,.55), rgba(255,255,255,0) 40%),
+    repeating-linear-gradient(45deg, rgba(90,60,40,.07) 0 7px, rgba(0,0,0,0) 7px 14px),
+    linear-gradient(180deg, #f5e5c8, #e3c18b);
+}
+
+.app{ width:min(1500px, 100%); }
+
+.card{
+  border:1px solid var(--br);
+  border-radius:var(--rad);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  min-height: calc(100vh - 28px);
+  display:flex;
+}
+
+.content{
+  padding:26px;
+  width:100%;
+  display:flex;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns: 1.25fr .75fr;
+  gap:22px;
+  align-items:stretch;
+  width:100%;
+}
+@media (max-width: 980px){
+  .layout{ grid-template-columns:1fr; }
+}
+
+h1{ margin:0 0 10px 0; font-size:42px; letter-spacing:.2px; }
+h2{ margin:0 0 12px 0; font-size:34px; }
+
+p{
+  margin:0 0 16px 0;
+  color:var(--mut);
+  line-height:1.6;
+  font-size:22px;
+}
+
+.panel{
+  border:1px solid var(--br);
+  border-radius:18px;
+  background: rgba(255,255,255,.66);
+  padding:18px;
+}
+
+.latin{
+  font-family: Arial, sans-serif;
+  font-size:22px;
+  line-height:1.6;
+  background: rgba(255,255,255,.75);
+  border:1px dashed rgba(86,58,40,.25);
+  padding:18px;
+  border-radius:16px;
+  white-space:pre-wrap;
+}
+
+.question{
+  margin-top:18px;
+  font-weight:700;
+  color:var(--ink);
+  font-size:24px;
+}
+
+.choices{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-top:14px;
+}
+
+button{
+  border:1px solid var(--br);
+  background: rgba(255,255,255,.75);
+  color:var(--ink);
+  border-radius:16px;
+  padding:16px 18px;
+  cursor:pointer;
+  font-weight:700;
+  font-size:20px;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+button:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(35,18,8,.18);
+}
+button:active{ transform: translateY(0px); }
+
+button.primary{
+  border-color: rgba(139,26,26,.35);
+  background: linear-gradient(180deg, rgba(139,26,26,.95), rgba(98,10,10,.95));
+  color:#fff;
+}
+button.primary:hover{ box-shadow: 0 14px 30px rgba(139,26,26,.20); }
+
+button.startBig{
+  font-size:34px;
+  padding:22px 28px;
+  border-radius:20px;
+  letter-spacing:.5px;
+  min-width:min(520px, 100%);
+  justify-content:center;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+
+.art{
+  width:100%;
+  border-radius:18px;
+  border:1px solid var(--br);
+  overflow:hidden;
+  background: rgba(255,255,255,.55);
+  min-height: 520px;
+}
+@media (max-width: 980px){ .art{ min-height: 320px; } }
+.art img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.startWrap{ text-align:center; width:100%; }
+.startTop{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.badge{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  padding:10px 14px;
+  border:1px solid var(--br);
+  border-radius:999px;
+  background: rgba(255,255,255,.70);
+  color:var(--mut);
+  font-size:14px;
+}
+.startPrompt{
+  font-weight:700;
+  color:var(--ink);
+  margin-top:4px;
+  font-size:22px;
+}
+.startWrap .choices{ justify-content:center; }
+
+hr.sep{
+  border:none;
+  border-top:1px solid rgba(66,44,30,.18);
+  margin:18px 0;
+}
+
+.fadeIn{ animation: fade .22s ease-out; }
+@keyframes fade{
+  from{ opacity:0; transform: translateY(6px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+/* =========================
+   MINI-GIOCO (SCOPED)
+   ========================= */
+.herbGame{
+  border:1px solid rgba(66,44,30,.22);
+  border-radius:18px;
+  overflow:hidden;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 12px 30px rgba(35,18,8,.12);
+  margin-top:16px;
+}
+.herbTop{
+  display:flex;
+  gap:12px;
+  justify-content:space-between;
+  align-items:flex-start;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(66,44,30,.14);
+  background: rgba(255,255,255,.85);
+}
+.herbTop h3{ margin:0; font-size:14px; font-weight:900; color:#1f1f1f; }
+.herbSub{ margin:4px 0 0; color:#555; font-size:12px; line-height:1.35; }
+.herbUI{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.herbPill{
+  border:1px solid rgba(0,0,0,.10);
+  border-radius:999px;
+  padding:8px 10px;
+  background:#fff;
+  font-weight:900;
+  font-size:12px;
+  color:#1f1f1f;
+}
+.herbBtn{
+  border:0;
+  border-radius:12px;
+  padding:9px 12px;
+  background:#111;
+  color:#fff;
+  font-weight:900;
+  font-size:12px;
+  cursor:pointer;
+}
+.herbBtn:active{ transform:translateY(1px); }
+.herbBtnNext[disabled]{
+  background:#0b6;
+  opacity:.55;
+  cursor:not-allowed;
+}
+.herbCanvas{
+  display:block;
+  width:100%;
+  height:auto;
+  background:#111;
+  touch-action:none;
+}
+.herbFoot{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  padding:10px 14px;
+  border-top:1px solid rgba(66,44,30,.14);
+  background: rgba(255,255,255,.78);
+}
+.herbHint{ margin:0; color:#444; font-size:12px; line-height:1.35; }
+.herbKeys{ font-weight:900; }
+@media (max-width:640px){ .herbFoot{flex-direction:column;align-items:flex-start} }
+
+/* =========================
+   FINALE FESTA (confetti)
+   ========================= */
+.partyArt{
+  position:relative;
+  width:100%;
+  height:100%;
+}
+.partyArt .partyImg{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  animation: partyZoom 4.2s ease-in-out infinite;
+}
+@keyframes partyZoom{
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.045); }
+}
+.partyArt .confetti{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.partyArt .confetti span{
+  position:absolute;
+  top:-12%;
+  left:var(--x);
+  width:var(--w);
+  height:var(--h);
+  border-radius:3px;
+  opacity:.95;
+  background: hsl(var(--hue), 90%, 60%);
+  transform: translateY(-10%) rotate(var(--r));
+  animation: confettiFall var(--dur) linear infinite;
+  animation-delay: var(--del);
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.25));
+}
+@keyframes confettiFall{
+  to { transform: translateY(120%) rotate(calc(var(--r) + 720deg)); }
+}
+
+/* =========================
+   FINALE: BANNER (shake)
+   ========================= */
+.finalBanner{
+  text-align:center;
+  font-weight:900;
+  color:var(--acc);
+  font-size:30px;
+  line-height:1.15;
+  margin:0 0 14px 0;
+  padding:14px 16px;
+  border:1px solid rgba(139,26,26,.28);
+  background: rgba(255,255,255,.86);
+  border-radius:18px;
+  box-shadow: 0 14px 34px rgba(35,18,8,.14);
+  animation: bannerShake 3.4s ease-in-out infinite;
+  transform-origin:center;
+}
+@media (max-width:640px){
+  .finalBanner{ font-size:22px; }
+}
+@keyframes bannerShake{
+  0%, 70%, 100% { transform: translate(0,0) rotate(0deg); }
+  72% { transform: translate(0.6px,-0.6px) rotate(-0.25deg); }
+  74% { transform: translate(-0.8px,0.7px) rotate(0.25deg); }
+  76% { transform: translate(0.7px,0.5px) rotate(-0.18deg); }
+  78% { transform: translate(-0.6px,-0.5px) rotate(0.18deg); }
+  80% { transform: translate(0.4px,-0.2px) rotate(0deg); }
+}
+
+/* =========================
+   APPLAUSI VISIVI (emoji)
+   ========================= */
+.partyArt .claps{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.partyArt .claps span{
+  position:absolute;
+  left:var(--x);
+  bottom:-18%;
+  font-size:var(--s);
+  opacity:0;
+  transform: translateY(0) scale(.9) rotate(0deg);
+  animation: clapRise var(--dur) ease-in infinite;
+  animation-delay: var(--del);
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,.25));
+}
+@keyframes clapRise{
+  0%   { opacity:0; transform: translateY(0) scale(.9) rotate(-6deg); }
+  12%  { opacity:1; }
+  70%  { opacity:1; }
+  100% { opacity:0; transform: translateY(-130%) scale(1.18) rotate(14deg); }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <section class="card">
+    <div class="content" id="main"></div>
+  </section>
+</div>
+
+<script>
+/* IMMAGINI LOCALI (cartella assets) */
+const VILLA_IMG         = "assets/villa-valeria.png";
+const MARCUS_IMG        = "assets/marcus.png";
+const CUCINA_IMG        = "assets/cucina.png";
+const CUCINA_CURA1_IMG  = "assets/cucina-cura-1.png";
+const CUCINA_CURA2_IMG  = "assets/cucina-cura-2.png";
+const GAIUS_IMG         = "assets/gaius.png";
+const GAIUS_FAIL_IMG    = "assets/gaius-fail.png";
+const CELLA_IMG         = "assets/cella.png";
+const CLAUDIA_IMG       = "assets/claudia.png";
+const AEMILIA_IMG       = "assets/aemilia.png";
+const FLAVIA_IMG        = "assets/flavia.png";
+const CONFRONTO_IMG     = "assets/confronto.png";
+const CATTURA_IMG       = "assets/cattura.png";
+const BIBLIOTECA_IMG    = "assets/biblioteca.png";
+const FUORI_IMG         = "assets/fuori.png";
+const AREA_IMG          = "assets/area.png";
+
+/* immagine festa (online) */
+const PARTY_IMG  = "https://commons.wikimedia.org/wiki/Special:FilePath/Wall_painting_-_banquet_scene_in_triclinium_-_Pompeii_%28V_2_4%29_-_Napoli_MAN_120031_-_01.jpg";
+
+const IMG = (src, alt) => `<img src="${src}" alt="${alt}">`;
+
+const PAGE_LOCK_MS = 60000; 
+let lockTimerInterval = null;
+
+/* =========================
+   AUDIO FAIL (sad trombone)
+   ========================= */
+const FAIL_AUDIO_URL = "https://www.orangefreesounds.com/wp-content/uploads/2015/07/Sad-trombone.mp3";
+const failAudio = new Audio(FAIL_AUDIO_URL);
+failAudio.preload = "auto";
+failAudio.volume = 1.0;
+
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AC();
+  }
+  if(audioCtx.state === "suspended"){
+    audioCtx.resume().catch(()=>{});
+  }
+  return audioCtx;
+}
+document.addEventListener("pointerdown", () => { getAudioCtx(); }, { once:true });
+
+function playSadTromboneSynth(){
+  const ctx = getAudioCtx();
+  const now = ctx.currentTime;
+
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.9, now);
+
+  const delay = ctx.createDelay(0.2);
+  delay.delayTime.setValueAtTime(0.045, now);
+
+  const fb = ctx.createGain();
+  fb.gain.setValueAtTime(0.28, now);
+
+  delay.connect(fb);
+  fb.connect(delay);
+
+  master.connect(delay);
+  delay.connect(ctx.destination);
+  master.connect(ctx.destination);
+
+  const notes = [
+    { f0: 233.08, f1: 233.08, dur: 0.20, wah: 220 },
+    { f0: 220.00, f1: 220.00, dur: 0.20, wah: 260 },
+    { f0: 207.65, f1: 207.65, dur: 0.20, wah: 300 },
+    { f0: 196.00, f1: 146.83, dur: 0.55, wah: 420 }
+  ];
+  const gap = 0.07;
+
+  function brassHit(t, f0, f1, dur, wahDepth){
+    const osc1 = ctx.createOscillator();
+    osc1.type = "sawtooth";
+    osc1.frequency.setValueAtTime(f0, t);
+    osc1.frequency.linearRampToValueAtTime(f1, t + dur);
+
+    const osc2 = ctx.createOscillator();
+    osc2.type = "square";
+    osc2.frequency.setValueAtTime(f0 * 0.5, t);
+    osc2.frequency.linearRampToValueAtTime(f1 * 0.5, t + dur);
+
+    osc1.detune.setValueAtTime(-6, t);
+    osc2.detune.setValueAtTime( 6, t);
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.75, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+    const bp = ctx.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.Q.setValueAtTime(2.2, t);
+    bp.frequency.setValueAtTime(650, t);
+
+    const wah = ctx.createOscillator();
+    wah.type = "sine";
+    wah.frequency.setValueAtTime(5.0, t);
+
+    const wahGain = ctx.createGain();
+    wahGain.gain.setValueAtTime(wahDepth, t);
+
+    wah.connect(wahGain);
+    wahGain.connect(bp.frequency);
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(1800, t);
+
+    osc1.connect(bp);
+    osc2.connect(bp);
+    bp.connect(lp);
+    lp.connect(g);
+    g.connect(master);
+
+    wah.start(t);
+    wah.stop(t + dur);
+
+    osc1.start(t);
+    osc2.start(t);
+    osc1.stop(t + dur + 0.02);
+    osc2.stop(t + dur + 0.02);
+  }
+
+  let t = now;
+  for(const n of notes){
+    brassHit(t, n.f0, n.f1, n.dur, n.wah);
+    t += n.dur + gap;
+  }
+}
+function playFailSfx(){
+  try{
+    failAudio.currentTime = 0;
+    const p = failAudio.play();
+    if(p && typeof p.catch === "function"){
+      p.catch(() => playSadTromboneSynth());
+    }
+  }catch(e){
+    playSadTromboneSynth();
+  }
+}
+
+/* =========================
+   MINI-GIOCO: SNAKE ERBE
+   ========================= */
+let activeCleanup = null;
+
+function startHerbSnake(mountEl, { onDone }){
+  if(typeof activeCleanup === "function") activeCleanup();
+
+  // ✅ TEMP: soglia abbassata per revisione
+  const KITCHEN_BG = "https://commons.wikimedia.org/wiki/Special:FilePath/PompeijKueche.jpg";
+  const TARGET_SCORE = 34;        // ✅ ora basta 2 punti (1 erba)
+  const POINTS_PER_HERB = 2;
+  const GROW_PER_HERB = 1;
+  const HERBS_TO_WIN = Math.ceil(TARGET_SCORE / POINTS_PER_HERB);
+
+  mountEl.innerHTML = `
+    <div class="herbGame">
+      <div class="herbTop">
+        <div>
+          <h3>Marcus — Snake delle Erbe (sfondo cucina)</h3>
+          <p class="herbSub">Raggiungi <b>${TARGET_SCORE} punti</b> per superare. Frecce per muovere (telefono: swipe). Con ${POINTS_PER_HERB} punti per erba servono <b>${HERBS_TO_WIN} erbe</b>.</p>
+        </div>
+        <div class="herbUI">
+          <div class="herbPill" data-score>Score: 0 / ${TARGET_SCORE}</div>
+          <div class="herbPill" data-len>Erbe dietro: 0</div>
+          <button class="herbBtn" data-restart>Ricomincia</button>
+          <button class="herbBtn herbBtnNext" data-next disabled>Vai avanti →</button>
+        </div>
+      </div>
+
+      <canvas class="herbCanvas" data-cv></canvas>
+
+      <div class="herbFoot">
+        <p class="herbHint"><span class="herbKeys">Frecce</span> • <span class="herbKeys">swipe</span> • Evita bordi e la tua coda di erbe.</p>
+        <p class="herbHint">Obiettivo: <span class="herbKeys">${TARGET_SCORE} punti</span> 🌿</p>
+      </div>
+    </div>
+  `;
+
+  const canvas = mountEl.querySelector("[data-cv]");
+  const scoreEl = mountEl.querySelector("[data-score]");
+  const lenEl = mountEl.querySelector("[data-len]");
+  const restartBtn = mountEl.querySelector("[data-restart]");
+  const nextBtn = mountEl.querySelector("[data-next]");
+
+  const GRID = 24;
+  const TICK_MS = 110;
+
+  let ctx, W, H, cols, rows, lastTick = 0;
+  let running = true, gameOver = false, passed = false;
+  let score = 0;
+  let rafId = 0;
+  let advanced = false;
+
+  let head = { x: 0, y: 0, dir: {x:1,y:0}, nextDir: {x:1,y:0} };
+  let trail = [];
+  let grow = 0;
+
+  let herb = { x: 0, y: 0, kind: 0, rot: 0 };
+  const herbKinds = 6;
+
+  const bgImg = new Image();
+  bgImg.crossOrigin = "anonymous";
+  bgImg.src = KITCHEN_BG;
+
+  function resize() {
+    const cssW = Math.max(320, Math.floor(mountEl.clientWidth));
+    const cssH = Math.floor(cssW * 0.56);
+
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.style.width = cssW + "px";
+    canvas.style.height = cssH + "px";
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+
+    ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    W = cssW; H = cssH;
+    cols = Math.max(18, Math.floor(W / GRID));
+    rows = Math.max(10, Math.floor(H / GRID));
+  }
+
+  function randInt(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
+  function sameCell(ax,ay,bx,by){ return ax===bx && ay===by; }
+
+  function spawnHerb() {
+    for (let tries=0; tries<500; tries++){
+      const x = randInt(1, cols-2);
+      const y = randInt(1, rows-2);
+
+      if (sameCell(x,y, head.x, head.y)) continue;
+      let ok = true;
+      for (const t of trail){ if (sameCell(x,y,t.x,t.y)) { ok=false; break; } }
+      if (!ok) continue;
+
+      herb.x = x; herb.y = y;
+      herb.kind = randInt(0, herbKinds-1);
+      herb.rot = Math.random()*Math.PI*2;
+      return;
+    }
+    herb.x = 2; herb.y = 2;
+  }
+
+  function updateUI(){
+    scoreEl.textContent = `Score: ${score} / ${TARGET_SCORE}`;
+    lenEl.textContent = `Erbe dietro: ${trail.length}`;
+
+    const canGoNext = score >= TARGET_SCORE;
+    nextBtn.disabled = !canGoNext;
+    nextBtn.style.opacity = canGoNext ? "1" : ".55";
+    nextBtn.style.cursor = canGoNext ? "pointer" : "not-allowed";
+  }
+
+  function setNextDir(dx,dy){
+    const cd = head.dir;
+    if (dx === -cd.x && dy === -cd.y) return;
+    head.nextDir = {x:dx,y:dy};
+  }
+
+  const onKey = (e) => {
+    if (e.key === "ArrowUp") setNextDir(0,-1);
+    else if (e.key === "ArrowDown") setNextDir(0,1);
+    else if (e.key === "ArrowLeft") setNextDir(-1,0);
+    else if (e.key === "ArrowRight") setNextDir(1,0);
+    else if (e.key === " " && (gameOver || passed)) reset();
+  };
+  window.addEventListener("keydown", onKey);
+
+  let touchStart = null;
+  const onDown = (e) => { touchStart = {x:e.clientX, y:e.clientY}; };
+  const onUp = (e) => {
+    if (!touchStart) return;
+    const dx = e.clientX - touchStart.x;
+    const dy = e.clientY - touchStart.y;
+    touchStart = null;
+    if (Math.hypot(dx,dy) < 18) return;
+    if (Math.abs(dx) > Math.abs(dy)) setNextDir(dx>0 ? 1 : -1, 0);
+    else setNextDir(0, dy>0 ? 1 : -1);
+  };
+  canvas.addEventListener("pointerdown", onDown);
+  canvas.addEventListener("pointerup", onUp);
+
+  const onRestart = () => reset();
+  restartBtn.addEventListener("click", onRestart);
+
+  const goNext = () => {
+    if (advanced) return;
+    if (score < TARGET_SCORE) return;
+    advanced = true;
+    stop();
+    onDone?.();
+  };
+  nextBtn.addEventListener("click", goNext);
+
+  const onWinAuto = () => {
+    if (advanced) return;
+    advanced = true;
+    setTimeout(() => {
+      stop();
+      onDone?.();
+    }, 650);
+  };
+
+  const onResize = () => reset();
+  window.addEventListener("resize", onResize);
+
+  function cellToPx(x,y){ return { px: x*GRID + GRID/2, py: y*GRID + GRID/2 }; }
+
+  function roundRect(c,x,y,w,h,r){
+    r = Math.min(r, w/2, h/2);
+    c.beginPath();
+    c.moveTo(x+r, y);
+    c.arcTo(x+w, y, x+w, y+h, r);
+    c.arcTo(x+w, y+h, x, y+h, r);
+    c.arcTo(x, y+h, x, y, r);
+    c.arcTo(x, y, x+w, y, r);
+    c.closePath();
+  }
+
+  function drawBackground(){
+    ctx.clearRect(0,0,W,H);
+
+    if (bgImg.complete && bgImg.naturalWidth){
+      const iw = bgImg.naturalWidth, ih = bgImg.naturalHeight;
+      const s = Math.max(W/iw, H/ih);
+      const dw = iw*s, dh = ih*s;
+      const dx = (W - dw)/2, dy = (H - dh)/2;
+      ctx.drawImage(bgImg, dx, dy, dw, dh);
+    } else {
+      ctx.fillStyle = "#222";
+      ctx.fillRect(0,0,W,H);
+    }
+
+    const g = ctx.createRadialGradient( W*0.35, H*0.28, 10, W*0.5, H*0.5, Math.max(W,H) );
+    g.addColorStop(0, "rgba(0,0,0,0.05)");
+    g.addColorStop(1, "rgba(0,0,0,0.62)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.globalAlpha = 0.22;
+    ctx.strokeStyle = "rgba(255,255,255,0.10)";
+    for (let x=0; x<=cols; x++){
+      ctx.beginPath(); ctx.moveTo(x*GRID,0); ctx.lineTo(x*GRID,rows*GRID); ctx.stroke();
+    }
+    for (let y=0; y<=rows; y++){
+      ctx.beginPath(); ctx.moveTo(0,y*GRID); ctx.lineTo(cols*GRID,y*GRID); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.strokeStyle = "rgba(255,255,255,0.28)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(GRID*0.5, GRID*0.5, (cols-1)*GRID, (rows-1)*GRID);
+  }
+
+  function drawHerbSegment(px,py, kind, rot, scale=1){
+    ctx.save();
+    ctx.translate(px,py);
+    ctx.rotate(rot);
+    ctx.scale(scale,scale);
+
+    ctx.strokeStyle = "rgba(80,220,120,0.95)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-6, 10);
+    ctx.quadraticCurveTo(0, 0, 6, -10);
+    ctx.stroke();
+
+    const fillLeaf = (a,b,c,d,e) => {
+      ctx.beginPath();
+      ctx.ellipse(a,b,c,d,e,0,Math.PI*2);
+      ctx.fill();
+    };
+
+    ctx.fillStyle = "rgba(40,200,90,0.95)";
+    if (kind === 0){
+      fillLeaf(-10, 2, 8, 4, -0.6);
+      fillLeaf(0, -4, 9, 4, 0.2);
+      fillLeaf(10, 2, 8, 4, 0.6);
+    } else if (kind === 1){
+      for (let i=0;i<6;i++) fillLeaf(-6 + i*2.2, -6 + Math.sin(i)*2, 6, 3.3, i*0.2);
+    } else if (kind === 2){
+      ctx.beginPath(); ctx.ellipse(0, -2, 12, 4.2, 0.1, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(6, 3, 10, 3.6, 0.6, 0, Math.PI*2); ctx.fill();
+    } else if (kind === 3){
+      for (let i=0;i<5;i++) fillLeaf(-6 + i*3, -6 + i*2, 5, 2.6, (i%2?0.6:-0.6));
+    } else if (kind === 4){
+      fillLeaf(-6, -2, 7, 4.2, -0.4);
+      fillLeaf(6, -2, 7, 4.2, 0.4);
+      fillLeaf(0, 5, 7, 4.2, 1.0);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(-12, 2);
+      ctx.lineTo(-6, -6);
+      ctx.lineTo(0, 2);
+      ctx.lineTo(6, -7);
+      ctx.lineTo(12, 3);
+      ctx.lineTo(6, 8);
+      ctx.lineTo(0, 4);
+      ctx.lineTo(-6, 9);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.beginPath();
+    ctx.ellipse(-2,-6, 6, 2.2, -0.3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
+  }
+
+  function drawMarcusHead(px,py, dir){
+    const angle = Math.atan2(dir.y, dir.x);
+    ctx.save();
+    ctx.translate(px,py);
+    ctx.rotate(angle);
+
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.ellipse(0, 16, 12, 6, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = "#d6c7a6";
+    ctx.strokeStyle = "rgba(0,0,0,0.18)";
+    ctx.lineWidth = 2;
+    roundRect(ctx, -10, -4, 20, 22, 6);
+    ctx.fill(); ctx.stroke();
+
+    ctx.strokeStyle = "rgba(120,80,40,0.65)";
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(-10, 8); ctx.lineTo(10, 8); ctx.stroke();
+
+    ctx.fillStyle = "#e3c2a8";
+    ctx.beginPath(); ctx.arc(0, -14, 10, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#5b3a26";
+    ctx.beginPath(); ctx.arc(0, -18, 10, Math.PI, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#1f1f1f";
+    ctx.beginPath(); ctx.arc(4, -15, 1.5, 0, Math.PI*2); ctx.fill();
+
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = "#fff";
+    ctx.beginPath(); ctx.moveTo(14, -6); ctx.lineTo(22, -2); ctx.lineTo(14, 2); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
+  }
+
+  function endGame(){
+    gameOver = true;
+    running = false;
+  }
+
+  function passGame(){
+    passed = true;
+    running = false;
+    updateUI();
+    onWinAuto();
+  }
+
+  function tick(){
+    head.dir = head.nextDir;
+
+    const prev = { x: head.x, y: head.y };
+    head.x += head.dir.x;
+    head.y += head.dir.y;
+
+    if (head.x <= 0 || head.x >= cols-1 || head.y <= 0 || head.y >= rows-1) return endGame();
+    for (const t of trail){
+      if (sameCell(head.x, head.y, t.x, t.y)) return endGame();
+    }
+
+    if (sameCell(head.x, head.y, herb.x, herb.y)){
+      score += POINTS_PER_HERB;
+      grow += GROW_PER_HERB;
+      spawnHerb();
+
+      if (score >= TARGET_SCORE){
+        updateUI();
+        return passGame();
+      }
+    }
+
+    trail.unshift({
+      x: prev.x, y: prev.y,
+      kind: randInt(0, herbKinds-1),
+      rot: Math.random()*Math.PI*2
+    });
+
+    if (grow > 0) grow--;
+    else trail.pop();
+
+    updateUI();
+  }
+
+  function drawOverlay(){
+    if (!gameOver && !passed) return;
+
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,0.60)";
+    ctx.fillRect(0,0,W,H);
+
+    const bw = Math.min(560, W*0.86);
+    const bh = 190;
+    const bx = (W-bw)/2;
+    const by = (H-bh)/2;
+
+    ctx.fillStyle = "rgba(255,255,255,0.96)";
+    roundRect(ctx, bx, by, bw, bh, 18);
+    ctx.fill();
+
+    ctx.fillStyle = "#111";
+    ctx.font = "900 24px system-ui, Arial";
+    ctx.fillText(passed ? "✅ SUPERATO!" : "⛔ NON SUPERATO", bx+22, by+54);
+
+    ctx.font = "800 14px system-ui, Arial";
+    ctx.fillText(`Score: ${score} / ${TARGET_SCORE}   •   Erbe dietro: ${trail.length}`, bx+22, by+88);
+
+    ctx.fillStyle = "#444";
+    ctx.font = "700 13px system-ui, Arial";
+    if (passed){
+      ctx.fillText(`Hai raggiunto ${TARGET_SCORE} punti: stai andando avanti…`, bx+22, by+118);
+      ctx.fillText("Se non parte subito, usa “Vai avanti →”.", bx+22, by+142);
+    } else {
+      ctx.fillText(`Devi arrivare a ${TARGET_SCORE} punti per passare: riprova.`, bx+22, by+118);
+      ctx.fillText("Premi Ricomincia (o SPAZIO) per rifare.", bx+22, by+142);
+    }
+    ctx.restore();
+  }
+
+  function draw(){
+    drawBackground();
+
+    const hp = cellToPx(herb.x, herb.y);
+    ctx.save();
+    ctx.globalAlpha = 0.60;
+    ctx.fillStyle = "rgba(120,255,180,0.25)";
+    ctx.beginPath();
+    ctx.ellipse(hp.px, hp.py+2, GRID*0.9, GRID*0.55, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+    drawHerbSegment(hp.px, hp.py, herb.kind, herb.rot, 1.15);
+
+    for (let i=trail.length-1; i>=0; i--){
+      const t = trail[i];
+      const p = cellToPx(t.x,t.y);
+      const scale = 0.95 - Math.min(0.35, i*0.01);
+      drawHerbSegment(p.px, p.py, t.kind, t.rot, Math.max(0.6, scale));
+    }
+
+    const mp = cellToPx(head.x, head.y);
+    drawMarcusHead(mp.px, mp.py, head.dir);
+
+    drawOverlay();
+  }
+
+  function reset(){
+    resize();
+    running = true;
+    gameOver = false;
+    passed = false;
+    score = 0;
+    head.x = Math.floor(cols/2);
+    head.y = Math.floor(rows/2);
+    head.dir = {x:1,y:0};
+    head.nextDir = {x:1,y:0};
+    trail = [];
+    grow = 0;
+    spawnHerb();
+    updateUI();
+  }
+
+  function loop(ts){
+    if (running && ts - lastTick > TICK_MS){
+      lastTick = ts;
+      tick();
+    }
+    draw();
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function stop(){
+    try{ cancelAnimationFrame(rafId); }catch(_){}
+    running = false;
+    window.removeEventListener("keydown", onKey);
+    window.removeEventListener("resize", onResize);
+    canvas.removeEventListener("pointerdown", onDown);
+    canvas.removeEventListener("pointerup", onUp);
+    restartBtn.removeEventListener("click", onRestart);
+    nextBtn.removeEventListener("click", goNext);
+  }
+
+  reset();
+  rafId = requestAnimationFrame(loop);
+
+  activeCleanup = stop;
+  return stop;
+}
+
+/* =========================
+   CONFETTI (finale)
+   ========================= */
+function mountConfetti(root){
+  const box = root.querySelector(".confetti");
+  if(!box) return;
+  box.innerHTML = "";
+  const pieces = 42;
+  for(let i=0;i<pieces;i++){
+    const s = document.createElement("span");
+    s.style.setProperty("--x",  (Math.random()*100).toFixed(2) + "%");
+    const w = 6 + Math.random()*10;
+    const h = w * (1.1 + Math.random()*0.6);
+    s.style.setProperty("--w",  w.toFixed(1) + "px");
+    s.style.setProperty("--h",  h.toFixed(1) + "px");
+    s.style.setProperty("--hue", Math.floor(Math.random()*360));
+    s.style.setProperty("--r",  Math.floor(Math.random()*360) + "deg");
+    s.style.setProperty("--dur",(2.9 + Math.random()*2.4).toFixed(2) + "s");
+    s.style.setProperty("--del",(Math.random()*1.8).toFixed(2) + "s");
+    box.appendChild(s);
+  }
+}
+
+/* =========================
+   APPLAUSI VISIVI (finale)
+   ========================= */
+function mountClaps(root){
+  const box = root.querySelector(".claps");
+  if(!box) return;
+  box.innerHTML = "";
+
+  const emojis = ["👏","👏","👏","🙌","🎉"];
+  const pieces = 22;
+
+  for(let i=0;i<pieces;i++){
+    const s = document.createElement("span");
+    s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    s.style.setProperty("--x",  (Math.random()*92 + 4).toFixed(2) + "%");
+    s.style.setProperty("--s",  (18 + Math.random()*18).toFixed(1) + "px");
+    s.style.setProperty("--dur",(1.9 + Math.random()*1.9).toFixed(2) + "s");
+    s.style.setProperty("--del",(Math.random()*1.4).toFixed(2) + "s");
+    box.appendChild(s);
+  }
+}
+
+/* =========================
+   AUDIO APPLAUSI (synth)
+   ========================= */
+let applauseLastMs = 0;
+let applauseNoiseBuf = null;
+
+function getNoiseBuffer(ctx){
+  if(applauseNoiseBuf) return applauseNoiseBuf;
+  const len = Math.floor(ctx.sampleRate * 1.0);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i=0;i<len;i++){
+    data[i] = (Math.random()*2 - 1);
+  }
+  applauseNoiseBuf = buf;
+  return buf;
+}
+
+function playApplauseSynth(duration=5.6){
+  const ctx = getAudioCtx();
+  const now = ctx.currentTime;
+
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(1.20, now + 0.06);
+  master.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  master.connect(ctx.destination);
+
+  const hp = ctx.createBiquadFilter();
+  hp.type = "highpass";
+  hp.frequency.setValueAtTime(900, now);
+
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.setValueAtTime(7500, now);
+
+  hp.connect(lp);
+  lp.connect(master);
+
+  const nbuf = getNoiseBuffer(ctx);
+
+  function clap(t, amp){
+    const src = ctx.createBufferSource();
+    src.buffer = nbuf;
+
+    const bp1 = ctx.createBiquadFilter();
+    bp1.type = "bandpass";
+    bp1.frequency.setValueAtTime(1800 + Math.random()*800, t);
+    bp1.Q.setValueAtTime(0.9 + Math.random()*0.8, t);
+
+    const bp2 = ctx.createBiquadFilter();
+    bp2.type = "bandpass";
+    bp2.frequency.setValueAtTime(3200 + Math.random()*1400, t);
+    bp2.Q.setValueAtTime(0.8 + Math.random()*0.9, t);
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(amp, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09 + Math.random()*0.05);
+
+    const pan = (ctx.createStereoPanner ? ctx.createStereoPanner() : null);
+    if(pan){
+      pan.pan.setValueAtTime((Math.random()*2 - 1) * 0.65, t);
+    }
+
+    src.connect(bp1);
+    bp1.connect(bp2);
+    (pan ? bp2.connect(pan) : bp2).connect(g);
+    g.connect(hp);
+
+    src.start(t);
+    src.stop(t + 0.22);
+  }
+
+  const claps = 160;
+  for(let i=0;i<claps;i++){
+    const t = now + Math.random()*duration;
+    const amp = 0.18 + Math.random()*0.55;
+    clap(t, amp);
+  }
+}
+
+function playApplauseSfx(){
+  const ms = Date.now();
+  if(ms - applauseLastMs < 1200) return; // evita doppio trigger ravvicinato
+  applauseLastMs = ms;
+
+  try{ playApplauseSynth(5.6); }catch(_){}
+}
+
+/* =========================
+   SCENE
+   ========================= */
+const PARTY_ART = `
+  <div class="partyArt">
+    <img class="partyImg" src="${PARTY_IMG}" alt="Festa a Roma antica">
+    <div class="confetti" aria-hidden="true"></div>
+    <div class="claps" aria-hidden="true"></div>
+  </div>
+`;
+
+const SCENES = {
+  start: {
+    id: "START",
+    title: "Escape Room Latina — Villa Valeria",
+    desc: "Leggi, traduci, ragiona e scegli bene dove vuoi andare e cosa vuoi fare.",
+    art: IMG(VILLA_IMG, "Villa Valeria"),
+    latin: ["—"],
+    choices: [{ label: "INCĬPE", next: "room1", style: "primary", big: true }]
+  },
+
+  room1: {
+    id: "ROOM I",
+    title: "Room 1 — Il foglio nella villa",
+    desc: "",
+    art: IMG(MARCUS_IMG, "Marcus"),
+    latin: [
+`Tu servus Marcus es.
+Habitas in villa familiae Valeriae.
+Familia Valeria pecuniam, famam, gloriam et potentiam habet.
+
+In familia Valeria Lucius dominus est; Iulia domina est.
+Lucius et Iulia filias habent: Valeriam et Corneliam.
+Sed Valeria et Cornelia iam in villa non habitant; extra villam habitant.
+Est etiam alius filius, Gaius.
+Gaius in villa vivit.
+Gaius filius Iuliae non est; Gaius filius adoptivus est.
+
+Cotidie in villa laboras, maxime in culina.
+In culina cenas paras et cibum convivis coquis.
+Bibliotheca clauditur; intrare non debes.
+
+Interdum in area laboras: ibi malvas, rosas, violas et tulipas curas.
+
+Saepe in cellam intrare soles: ibi mensas, tabulas, tunicas, amphoras, cistas et lucernas vides.
+
+Non debes ex villa evadere, aliter a domina verberaris.`
+    ],
+    question: "Dove vai ora?",
+    choices: [
+      { label: "Nel giardino", next: "area", style: "primary" },
+      { label: "Nella biblioteca", next: "fail_library", style: "primary" },
+      { label: "Nella cucina", next: "kitchen", style: "primary" },
+      { label: "Nella locanda", next: "fail_inn", style: "primary" }
+    ]
+  },
+
+  kitchen: {
+    id: "CULINA",
+    title: "Cucina — Culina",
+    desc: "",
+    art: IMG(CUCINA_IMG, "Cucina"),
+    latin: [
+`In culina capsa est; in capsa uvae, olivae, carotae, cepae, mala, pira et pruna sunt.
+Ibi etiam arca est; in arca farina et placenta sunt.
+
+In tabula herbae sunt: salvia, mentha, ruta, malva, mandragora.
+Prope ianuam amphora aqua plena est, et fasciae sunt.
+
+Marcus in culina cenam parare incipit.
+
+Subito femina extra culinam clamat.
+Marcus audit, sed intellegit tantum: “spinae!” et “auxilium!”`
+    ],
+    question: "Dove vai?",
+    choices: [
+      { label: "In biblioteca", next: "fail_library", style: "primary" },
+      { label: "Nella casa del vicino", next: "fail_inn", style: "primary" },
+      { label: "Nel giardino", next: "area", style: "primary" },
+      { label: "Nel tempio", next: "fail_inn", style: "primary" }
+    ]
+  },
+
+  area: {
+    id: "AREA",
+    title: "Room 2 — In area",
+    desc: "",
+    art: IMG(AREA_IMG, "Area"),
+    latin: [
+`Marcus in area ambulat et ancillam Liviam prope rosas invenit. Ancilla in terra iacet et plagas habet. Prope ancillam fovea est; prope foveam decipula spinarum. Prope violas sarculum iacet; prope tulipas rastellus iacet. Supra rosas vitta rubra pendet. In area quoque situlae et foliae sunt.
+
+Ancilla clamat: “Auxilium! Me, quaeso, adiuva! Doleo!” Marcus timet, sed debet statuere.`
+    ],
+    question: "Cosa fai ora?",
+    choices: [
+      { label: "Vai a consultare un libro di medicina", next: "fail_library", style: "primary" },
+      { label: "Ti rechi subito dal dottore", next: "fail_inn", style: "primary" },
+      { label: "Ti dirigi immediatamente in cucina", next: "culina_cura_1", style: "primary" },
+      { label: "Vai nel tempio a pregare", next: "fail_inn", style: "primary" }
+    ]
+  },
+
+  culina_cura_1: {
+    id: "CULINA I",
+    title: "Culina — Cura",
+    desc: "",
+    art: IMG(CUCINA_CURA1_IMG, "Cucina — Cura I"),
+    latin: [
+`Marcus Liviam tollit; servus ancillam in culinam portat.
+Ibi plagas coxae aqua lavat. Marcus nunc herbas cogere debet.`
+    ],
+    choices: [
+      { label: "inizia a raccogliere le erbe medicinali", next: "herb_game", style: "primary" }
+    ]
+  },
+
+  herb_game: {
+    id: "LUDUS",
+    title: "Culina — Herbae",
+    desc: "",
+    art: IMG(CUCINA_IMG, "Cucina"),
+    latin: [
+`Marcus herbas medicinalas colligere incipit.`
+    ],
+    game: true
+  },
+
+  culina_cura_2: {
+    id: "CULINA II",
+    title: "Culina — Cura",
+    desc: "",
+    art: IMG(CUCINA_CURA2_IMG, "Cucina — Cura II"),
+    latin: [
+`Marcus herbas conterit et emplastrum facit; emplastrum plagis imponit. Postea plagae sanantur.
+
+Tum Livia dicit: “Causa plagarum non est spina rosarum. Fovea erat: ibi cecidi, et prope foveam decipula spinarum erat. Heri non erat. Tibi gratias ago. Tu me sanas; si ancilla vulneratur, domina ancillam eicit.”`
+    ],
+    question: "Marco vuole saperne di più e decide di indagare: da chi vuoi andare per chiedere alcune informazioni?",
+    choices: [
+      { label: "dal padrone", next: "fail_library", style: "primary" },
+      { label: "da Valeria", next: "fail_valeria", style: "primary" },
+      { label: "da Gaio", next: "gaius_ok", style: "primary" },
+      { label: "da Cornelia", next: "fail_cornelia", style: "primary" }
+    ]
+  },
+
+  gaius_ok: {
+    id: "GAIUS",
+    title: "Gaius — Ira",
+    desc: "",
+    art: IMG(GAIUS_IMG, "Gaius"),
+    latin: [
+`Marcus e culina exit et Gaium videt. Marcus rogat: “Ubi sunt decipulae spinarum?”
+Gaius respondet: “Decipulae spinarum in cella sunt. Cur me rogas?”
+Marcus respondet: “Ancilla Livia plagas habet. Livia a decipula spinarum vulneratur. Ego Liviam servo et sano; nunc Livia mecum in culina est.”
+Tum Gaius subito tacet... stat... Marcum rabide spectat... iratus est... deinde clamat: “Marce, labora! Tace! Liviam omitte!”
+Gaius discedit. Marcus manet et non intellegit.`
+    ],
+    question: "Che cosa vuoi fare?",
+    choices: [
+      { label: "Vai nel ripostiglio", next: "cella", style: "primary" },
+      { label: "Scappa da casa", next: "fail_inn", style: "primary" },
+      { label: "Torna da Livia in cucina", next: "fail_gaius", style: "primary" },
+      { label: "Vai dal padrone", next: "fail_library", style: "primary" }
+    ]
+  },
+
+  cella: {
+    id: "CELLA",
+    title: "Ripostiglio — Cella",
+    desc: "",
+    art: IMG(CELLA_IMG, "Cella"),
+    latin: [
+`Marcus in cellam ambulat et in cella invenit terram, sacculum, tabellam, situlam, amphoram, cistam, arcam, decipulas spinarum et chartam, in qua scribitur: “Ego Gaium amo.”`
+    ],
+    question: "Che cosa fai?",
+    choices: [
+      { label: "Vai a chiedere spiegazioni a Gaio, che gestisce il ripostiglio", next: "fail_gaius_cella", style: "primary" },
+      { label: "Vai a chiedere spiegazioni al padrone Lucio, che gestisce il patrimonio", next: "fail_library", style: "primary" },
+      { label: "Vai a chiedere spiegazioni all’ancella Claudia, che gestisce il giardino", next: "claudia_scene", style: "primary" }
+    ]
+  },
+
+  fail_gaius_cella: {
+    id: "GAIUS",
+    title: "Gaio — Iratus",
+    desc: "",
+    art: IMG(GAIUS_FAIL_IMG, "Gaius iratus"),
+    latin: [
+`Marcus Gaium rogat.
+Sed Gaius iratus est.
+Marcus a Gaio virga verberatur.
+Perdidisti.`
+    ],
+    choices: [{ label: "INCĬPE ITERUM", next: "start", style: "primary" }]
+  },
+
+  claudia_scene: {
+    id: "CLAUDIA",
+    title: "CLAUDIA ET MARCUS",
+    desc: "",
+    art: IMG(CLAUDIA_IMG, "Claudia"),
+    latin: [
+`Marcus Claudiam invenit et ancillam rogat: “Quae in area laborant?”
+Claudia: “In area laborant maxime Aemilia et Flavia; interdum etiam Livia laborat.”
+
+Marcus: “Quae est Flavia?”
+Claudia respondet:
+1) “Flavia dominam multum odit.”
+2) “Flavia e villa fugere amat.”
+3) “Flavia in culina subripit et latenter edit.”
+4) “Flavia filia agricolae et coquae est.”
+
+Marcus: “Quae est Aemilia?”
+Claudia respondet:
+1) “Aemilia equos amat.”
+2) “Aemilia saepe ad bibliothecam ambulat.”
+3) “Aemilia fortasse iuvenem amat.”
+4) “Aemilia filia scribae et medicae est.”`
+    ],
+    question: "Marco ha ancora dubbi. Da chi vuoi andare per chiedere spiegazioni?",
+    choices: [
+      { label: "Emilia", next: "emilia_scene", style: "primary" },
+      { label: "Valeria", next: "fail_valeria", style: "primary" },
+      { label: "Lucio", next: "fail_library", style: "primary" },
+      { label: "Cornelia", next: "fail_cornelia", style: "primary" }
+    ]
+  },
+
+  emilia_scene: {
+    id: "AEMILIA",
+    title: "Aemilia — Convocata",
+    desc: "",
+    art: IMG(AEMILIA_IMG, "Aemilia"),
+    latin: [
+`Marcus Aemiliam vocat et ancilla venit.
+Marcus rogat: “Tua-ne culpa est?”
+Aemilia negat.`
+    ],
+    question: "Osserva attentamente Emilia. Da chi vuoi andare ora per chiedere informazioni?",
+    choices: [
+      { label: "da Valeria", next: "fail_valeria", style: "primary" },
+      { label: "da Lucio", next: "fail_library", style: "primary" },
+      { label: "da Cornelia", next: "fail_cornelia", style: "primary" },
+      { label: "da Flavia", next: "flavia_scene", style: "primary" }
+    ]
+  },
+
+  flavia_scene: {
+    id: "FLAVIA",
+    title: "Flavia — Convocata",
+    desc: "",
+    art: IMG(FLAVIA_IMG, "Flavia"),
+    latin: [
+`Marcus Flaviam vocat et ancilla venit.
+Marcus rogat: “Tua-ne culpa est?”
+Flavia negat.`
+    ],
+    question: "Osserva attentamente Flavia. Marco ora convoca Claudia, Livia, Gaio, la domina Iulia e le due sospettate. È arrivato il momento decisivo. Chi è la colpevole?",
+    choices: [
+      { label: "Aemilia", next: "emilia_caught", style: "primary" },
+      { label: "Flavia", next: "fail_flavia_captured", style: "primary" }
+    ]
+  },
+
+  emilia_caught: {
+    id: "VERITAS",
+    title: "Aemilia — Detegitur",
+    desc: "",
+    art: IMG(CATTURA_IMG, "Confronto"),
+    latin: [
+`Aemilia capitur et dicit: “Ego sum. Ego hoc facio, quia Gaium amo. Sed Gaius Liviam amat. Ideo decipulam spinarum pono: ita Livia vulneratur et domina ancillam eicit. Sed vittam rubram supra rosas amitto, et terram in cella relinquo, et chartam relinquo, in qua scribo: ‘Ego Gaium amo.’ Propter Marcum nunc detegor.”
+
+Domina Aemiliam, ancillam infidelem, eicit. Gaius tandem Liviam videt et dicit: “Livia, ego te amo.” Livia respondet: “Ego quoque te amo.” Domina Marcum laudat et praemium dat. Marcus e villa discedit et ad bibliothecam ambulat.`
+    ],
+    choices: [
+      { label: "Vai alla fine", next: "finale", style: "primary" }
+    ]
+  },
+
+  fail_flavia_captured: {
+    id: "ERROR",
+    title: "Error — Flavia capitur",
+    desc: "",
+    art: IMG(CONFRONTO_IMG, "Cattura"),
+    latin: [
+`Marcus et alii Flaviam capiunt; Flavia clamat et negat.
+
+Sed culpa non est Flaviae.
+Tum Aemilia, dum Flaviam capiunt, clamat: “Stulti! Ego feci!”
+Aemilia e villa fugit.
+
+Domina irata est. Domina Marcum culpat.
+Marcus a domina virga verberatur.
+Perdidisti.`
+    ],
+    choices: [{ label: "INCĬPE ITERUM", next: "start", style: "primary" }]
+  },
+
+  finale: {
+    id: "FINIS",
+    title: "Finis — Festum",
+    desc: "",
+    art: PARTY_ART,
+    banner: "COMPLIMENTI! HAI\\AVETE CONCLUSO L'ESCAPE ROOM!",
+    latin: [
+`ACTA EST FABULA: PLAUDITE!
+— Svetonio, Vita Augusti (99)
+
+lo spettacolo è finito: applaudite!`
+    ],
+    question: "Vuoi ricominciare?",
+    choices: [
+      { label: "INCĬPE ITERUM", next: "start", style: "primary" }
+    ],
+    onMount: (wrap) => {
+      mountConfetti(wrap);
+      mountClaps(wrap);
+      playApplauseSfx();
+    }
+  },
+
+  fail_gaius: {
+    id: "CULINA",
+    title: "Culina — Gaius iratus",
+    desc: "",
+    art: IMG(GAIUS_FAIL_IMG, "Gaius iratus"),
+    latin: [
+`Marcus ad culinam ambulat. Sed Gaium iratum invenit.
+Marcus a Gaio virga verberatur.
+Perdidisti.`
+    ],
+    choices: [{ label: "INCĬPE ITERUM", next: "start", style: "primary" }]
+  },
+
+  fail_library: {
+    id: "BIBLIOTHECA",
+    title: "Biblioteca — Prohibita",
+    desc: "",
+    art: IMG(BIBLIOTECA_IMG, "Bibliotheca"),
+    latin: [
+`Marcus servus in bibliothecam intrat.
+Sed Lucius dominus servum videt et clamat: “Foras statim!”
+Marcus a domino virga verberatur.
+Perdidisti.`
+    ],
+    choices: [{ label: "INCĬPE ITERUM", next: "start", style: "primary" }]
+  },
+
+  fail_valeria: {
+    id: "VALERIA",
+    title: "Valeria — Non in villa",
+    desc: "",
+    art: IMG(FUORI_IMG, "Extra villam"),
+    latin: [
+`Valeria in villa non habitat; extra villam habitat.
+Marcus ex villa evadere temptat.
+Sed domina servum videt et clamat: “Non debes ex villa evadere!”
+Marcus a domina virga verberatur.
+Perdidisti.`
+    ],
+    choices: [{ label: "INCĬPE ITERUM", next: "start", style: "primary" }]
+  },
+
+  fail_cornelia: {
+    id: "CORNELIA",
+    title: "Cornelia — Non in villa",
+    desc: "",
+    art: IMG(FUORI_IMG, "Extra villam"),
+    latin: [
+`Cornelia in villa non habitat; extra villam habitat.
+Marcus ex villa evadere temptat.
+Sed domina servum videt et clamat: “Non debes ex villa evadere!”
+Marcus a domina virga verberatur.
+Perdidisti.`
+    ],
+    choices: [{ label: "INCĬPE ITERUM", next: "start", style: "primary" }]
+  },
+
+  fail_inn: {
+    id: "EXTRA VILLAM",
+    title: "Extra villam — Prohibitum",
+    desc: "",
+    art: IMG(FUORI_IMG, "Extra villam"),
+    latin: [
+`Marcus ex villa evadere temptat.
+Sed domina servum videt et clamat: “Non debes ex villa evadere!”
+Marcus a domina virga verberatur.
+Perdidisti.`
+    ],
+    choices: [{ label: "INCĬPE ITERUM", next: "start", style: "primary" }]
+  }
+};
+
+function stopActiveThings(){
+  if(typeof activeCleanup === "function"){
+    try{ activeCleanup(); }catch(_){}
+  }
+  activeCleanup = null;
+
+  if(lockTimerInterval){
+    try{ clearInterval(lockTimerInterval); }catch(_){}
+  }
+  lockTimerInterval = null;
+}
+
+function renderScene(id){
+  stopActiveThings();
+
+  const sc = SCENES[id];
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+
+  if(!sc){
+    main.innerHTML = `<p style="color:#8b1a1a">Errore: scena non trovata (${id}).</p>`;
+    return;
+  }
+
+  if(id.startsWith("fail_")){
+    playFailSfx();
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = "fadeIn";
+  wrap.style.width = "100%";
+
+  if(id === "start"){
+    wrap.classList.add("startWrap");
+
+    const top = document.createElement("div");
+    top.className = "startTop";
+
+    const badge = document.createElement("div");
+    badge.className = "badge";
+    badge.innerHTML = `🏛️ <strong>Roma antica</strong> • 👤 <strong>Marcus servus</strong>`;
+    top.appendChild(badge);
+
+    const h1 = document.createElement("h1");
+    h1.textContent = sc.title;
+    top.appendChild(h1);
+
+    const p = document.createElement("p");
+    p.textContent = sc.desc || "";
+    top.appendChild(p);
+
+    const prompt = document.createElement("div");
+    prompt.className = "startPrompt";
+    prompt.textContent = "Premi INCĬPE (inizia!) per incominciare.";
+    top.appendChild(prompt);
+
+    const art = document.createElement("div");
+    art.className = "art";
+    art.innerHTML = sc.art || "";
+    top.appendChild(art);
+
+    wrap.appendChild(top);
+
+    const hr = document.createElement("hr");
+    hr.className = "sep";
+    wrap.appendChild(hr);
+
+    const latinPanel = document.createElement("div");
+    latinPanel.className = "panel";
+    const latinBox = document.createElement("div");
+    latinBox.className = "latin";
+    latinBox.textContent = (sc.latin || []).join("\n\n");
+    latinPanel.appendChild(latinBox);
+    wrap.appendChild(latinPanel);
+
+    const q = document.createElement("div");
+    q.className = "choices";
+    (sc.choices || []).forEach(c=>{
+      const b = document.createElement("button");
+      if(c.style === "primary") b.classList.add("primary");
+      if(c.big) b.classList.add("startBig");
+      b.textContent = c.label;
+      b.onclick = ()=> renderScene(c.next);
+      q.appendChild(b);
+    });
+    wrap.appendChild(q);
+
+    main.appendChild(wrap);
+    return;
+  }
+
+  // ✅ Banner (solo dove presente: nel finale)
+  if(sc.banner){
+    const bn = document.createElement("div");
+    bn.className = "finalBanner";
+    bn.textContent = sc.banner;
+    wrap.appendChild(bn);
+  }
+
+  const layout = document.createElement("div");
+  layout.className = "layout";
+
+  const left = document.createElement("div");
+
+  const h2 = document.createElement("h2");
+  h2.textContent = sc.title;
+  left.appendChild(h2);
+
+  const lock = document.createElement("div");
+  lock.style.display = "inline-flex";
+  lock.style.alignItems = "center";
+  lock.style.gap = "8px";
+  lock.style.padding = "10px 14px";
+  lock.style.border = "1px solid rgba(66,44,30,.22)";
+  lock.style.borderRadius = "999px";
+  lock.style.background = "rgba(255,255,255,.78)";
+  lock.style.color = "var(--mut)";
+  lock.style.fontWeight = "900";
+  lock.style.fontSize = "14px";
+  lock.style.margin = "0 0 14px 0";
+  left.appendChild(lock);
+
+  const lockEnd = Date.now() + PAGE_LOCK_MS;
+  const fmt = (ms) => {
+    const s = Math.max(0, Math.ceil(ms/1000));
+    const m = Math.floor(s/60);
+    const r = s%60;
+    return `${String(m).padStart(2,"0")}:${String(r).padStart(2,"0")}`;
+  };
+  const tickLock = () => {
+    const rem = lockEnd - Date.now();
+    if(rem <= 0){
+      lock.textContent = `✅ Ora puoi rispondere.`;
+      if(lockTimerInterval){
+        try{ clearInterval(lockTimerInterval); }catch(_){}
+      }
+      lockTimerInterval = null;
+      return;
+    }
+    lock.textContent = `⏳ Attendi ${fmt(rem)} per continuare…`;
+  };
+  tickLock();
+  lockTimerInterval = setInterval(tickLock, 250);
+
+  if(sc.desc){
+    const d = document.createElement("p");
+    d.textContent = sc.desc;
+    left.appendChild(d);
+  }
+
+  const latinPanel = document.createElement("div");
+  latinPanel.className = "panel";
+  const latinBox = document.createElement("div");
+  latinBox.className = "latin";
+  latinBox.textContent = (sc.latin || []).join("\n\n");
+  latinPanel.appendChild(latinBox);
+  left.appendChild(latinPanel);
+
+  if(sc.game){
+    const mount = document.createElement("div");
+    left.appendChild(mount);
+    setTimeout(() => {
+      startHerbSnake(mount, { onDone: () => renderScene("culina_cura_2") });
+    }, PAGE_LOCK_MS);
+  }
+
+  if(sc.question){
+    const qu = document.createElement("div");
+    qu.className = "question";
+    qu.textContent = sc.question;
+    left.appendChild(qu);
+  }
+
+  if(sc.choices){
+    const q = document.createElement("div");
+    q.className = "choices";
+    (sc.choices || []).forEach(c=>{
+      const b = document.createElement("button");
+      if(c.style === "primary") b.classList.add("primary");
+      b.textContent = c.label;
+      b.onclick = ()=> renderScene(c.next);
+      q.appendChild(b);
+    });
+    left.appendChild(q);
+
+    const btns = q.querySelectorAll("button");
+    btns.forEach(b => { b.disabled = true; });
+    setTimeout(() => { btns.forEach(b => { b.disabled = false; }); }, PAGE_LOCK_MS);
+  }
+
+  const right = document.createElement("div");
+  const art = document.createElement("div");
+  art.className = "art";
+  art.innerHTML = sc.art || "";
+  right.appendChild(art);
+
+  layout.appendChild(left);
+  layout.appendChild(right);
+
+  wrap.appendChild(layout);
+  main.appendChild(wrap);
+
+  if(typeof sc.onMount === "function"){
+    try{ sc.onMount(wrap); }catch(_){}
+  }
+}
+
+renderScene("start");
+</script>
+</body>
+</html>
